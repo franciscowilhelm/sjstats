@@ -56,7 +56,7 @@ mediation <- function(x, ...) {
 #' @importFrom sjmisc typical_value
 #' @importFrom insight model_info
 #' @export
-mediation.brmsfit <- function(x, treatment, mediator, prob = .9, typical = "median", ...) {
+mediation.brmsfit <- function(x, treatment, mediator, mediator_pc, prob = .9, typical = "median", ...) {
   # check for pkg availability, else function might fail
   if (!requireNamespace("brms", quietly = TRUE))
     stop("Please install and load package `brms` first.")
@@ -95,7 +95,7 @@ mediation.brmsfit <- function(x, treatment, mediator, prob = .9, typical = "medi
   treatment.model <- which(dv != mediator)
 
   if (fixm) mediator <- fix_factor_name(x, mediator)
-
+  if (fixm) mediator_pc <- fix_factor_name(x, mediator_pc)
   # brms removes underscores from variable names when naming estimates
   # so we need to fix variable names here
 
@@ -109,7 +109,7 @@ mediation.brmsfit <- function(x, treatment, mediator, prob = .9, typical = "medi
     dplyr::pull(1)
 
   # Mediator effect: coef(mediator) from model_y_treatment
-  coef_mediator <- sprintf("b_%s_%s", dv[treatment.model], mediator)
+  coef_mediator <- sprintf("b_%s_%s", dv[treatment.model], mediator_pc)
   eff.mediator <- x %>%
     brms::posterior_samples(pars = coef_mediator, exact_match = TRUE) %>%
     dplyr::pull(1)
